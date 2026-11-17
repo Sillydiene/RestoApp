@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             RestoAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "RestoApp",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
