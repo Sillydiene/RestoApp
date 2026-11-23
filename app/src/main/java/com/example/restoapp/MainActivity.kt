@@ -1,47 +1,68 @@
+
 package com.example.restoapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.restoapp.ui.theme.RestoAppTheme
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
+            val scope = rememberCoroutineScope()
+
             RestoAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "RestoApp",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                SignUpScreen(
+
+                    onSignUp = { name, email, password ->
+
+                        scope.launch {
+                            try {
+                                SupabaseClient.client.auth.signUpWith(Email) {
+                                    this.email = email
+                                    this.password = password
+
+                                    data = buildJsonObject {
+                                        put("full_name", name)
+                                    }
+                                }
+
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Inscription réussie ! Vérifiez votre e-mail.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                            } catch (e: Exception) {
+
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Erreur : ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    },
+
+                    onLoginClick = {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Page de connexion à venir",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RestoAppTheme {
-        Greeting("Android")
     }
 }
